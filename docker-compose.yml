@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: nexora-postgres
+    environment:
+      POSTGRES_DB: nexora
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: nexorapassword
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d nexora"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: nexora-redis
+    ports:
+      - "6379:6379"
+
+  ai-service:
+    build:
+      context: ./ai-service
+      dockerfile: Dockerfile
+    container_name: nexora-ai-service
+    ports:
+      - "8000:8000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - USE_DEMO_MODE=true
+    depends_on:
+      - postgres
+      - redis
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: nexora-backend
+    ports:
+      - "5000:5000"
+    environment:
+      - DATABASE_URL=Host=postgres;Port=5432;Database=nexora;Username=postgres;Password=nexorapassword
+      - AI_SERVICE_URL=http://ai-service:8000
+    depends_on:
+      - postgres
+      - redis
+      - ai-service
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: nexora-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://backend:5000
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
