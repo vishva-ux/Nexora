@@ -15,7 +15,7 @@ export default function LiveDeliberationWorkspace() {
 
   // Dynamic analysis generator based on question text
   const getDynamicAnalysis = (q: string) => {
-    const qLower = q.lower ? q.lower() : q.toLowerCase();
+    const qLower = (q || '').toLowerCase();
     
     if (qLower.includes("graphql") || qLower.includes("rest")) {
       return {
