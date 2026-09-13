@@ -11,14 +11,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Setup .NET 9
-        uses: actions/setup-dotnet@v4
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
         with:
-          dotnet-version: '9.0.x'
-      - name: Restore dependencies
-        run: dotnet restore backend/Nexora.sln
-      - name: Build Solution
-        run: dotnet build backend/Nexora.sln --no-restore -c Release
+          python-version: '3.12'
+      - name: Install dependencies
+        run: |
+          cd backend
+          pip install -r requirements.txt
+      - name: Test backend imports
+        run: |
+          cd backend
+          python -c "import app.main; print('Backend loaded successfully')"
 
   ai-service-tests:
     runs-on: ubuntu-latest

@@ -1,18 +1,20 @@
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
-WORKDIR /src
-COPY ["Nexora.Api/Nexora.Api.csproj", "Nexora.Api/"]
-COPY ["Nexora.Application/Nexora.Application.csproj", "Nexora.Application/"]
-COPY ["Nexora.Domain/Nexora.Domain.csproj", "Nexora.Domain/"]
-COPY ["Nexora.Infrastructure/Nexora.Infrastructure.csproj", "Nexora.Infrastructure/"]
-RUN dotnet restore "Nexora.Api/Nexora.Api.csproj"
-COPY . .
-WORKDIR "/src/Nexora.Api"
-RUN dotnet build "Nexora.Api.csproj" -c Release -o /app/build
-RUN dotnet publish "Nexora.Api.csproj" -c Release -o /app/publish /p:UseAppHost=false
+FROM python:3.12-slim
 
-FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
 WORKDIR /app
-COPY --from=build /app/publish .
+
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
 EXPOSE 5000
-ENV ASPNETCORE_URLS=http://+:5000
-ENTRYPOINT ["dotnet", "Nexora.Api.dll"]
+
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "5000"]

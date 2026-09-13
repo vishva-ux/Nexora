@@ -13,7 +13,7 @@ Nexora is a production-oriented, enterprise-grade multi-agent decision platform.
 | Layer | Stack & Technologies |
 | :--- | :--- |
 | **Frontend** | **Next.js 14+ (App Router)**, React 18, TypeScript, Tailwind CSS, Framer Motion, Lucide React, SignalR Client |
-| **Main Backend** | **C# / .NET 9 ASP.NET Core Web API**, Entity Framework Core 9, SignalR Hubs, JWT Authentication, Serilog |
+| **Main Backend** | **Python 3.12+ FastAPI**, SQLAlchemy, Pydantic, WebSockets, JWT Authentication, Uvicorn |
 | **AI Microservice** | **Python 3.12+**, FastAPI, **LangGraph** stateful multi-agent workflow, LangChain, Pydantic |
 | **LLM Inference** | **Ollama** (Local models: `llama3`, `mistral`), OpenAI API support, with deterministic **Demo Mode** fallback |
 | **Database & Vector** | **PostgreSQL 16** with `pgvector` extension & **Redis 7** distributed caching |
@@ -29,10 +29,10 @@ Nexora is a production-oriented, enterprise-grade multi-agent decision platform.
                     │  (React/TS/Tailwind)   │
                     └───────────┬────────────┘
                                 │
-                         REST + SignalR (WebSockets)
+                         REST + WebSockets
                                 │
                     ┌───────────▼────────────┐
-                    │  ASP.NET Core .NET 9   │
+                    │  Python FastAPI Backend│
                     │   (Clean Architecture) │
                     └───────────┬────────────┘
                                 │
@@ -89,7 +89,7 @@ ollama pull mistral
 docker compose up --build
 ```
 - **Next.js Frontend**: `http://localhost:3000`
-- **ASP.NET Core Backend API**: `http://localhost:5000` / Swagger at `http://localhost:5000/swagger`
+- **Python FastAPI Backend API**: `http://localhost:5000` / Swagger at `http://localhost:5000/docs`
 - **Python FastAPI AI Microservice**: `http://localhost:8000` / OpenAPI at `http://localhost:8000/docs`
 
 ### Option 2: Local Development Mode
@@ -101,11 +101,11 @@ pip install -r requirements.txt
 python3 -m uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
-#### 2. Main Backend (C# .NET 9):
+#### 2. Main Backend (Python FastAPI):
 ```bash
 cd backend
-dotnet restore Nexora.sln
-dotnet run --project Nexora.Api
+pip install -r requirements.txt
+python3 -m uvicorn app.main:app --host 0.0.0.0 --port 5000
 ```
 
 #### 3. Frontend (Next.js 14):

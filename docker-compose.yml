@@ -47,7 +47,7 @@ services:
     ports:
       - "5000:5000"
     environment:
-      - DATABASE_URL=Host=postgres;Port=5432;Database=nexora;Username=postgres;Password=nexorapassword
+      - DATABASE_URL=postgresql://postgres:nexorapassword@postgres:5432/nexora
       - AI_SERVICE_URL=http://ai-service:8000
     depends_on:
       - postgres
